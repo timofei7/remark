@@ -39,6 +39,20 @@ function convertMarkdown (content, links, insideContentClass) {
   }
 
   var tokens = marked.Lexer.lex(markdown.replace(/^\s+/, ''));
+
+  //if data-lang=html attribute present, escape html tags
+  tokens.forEach(function( token ) {
+    if ( token.type === "html" ) {
+        var el = document.createElement( 'html' );
+        el.innerHTML=token.text;
+        var match = el.querySelector('[data-lang="html"]');
+        if (match) {
+          match.innerHTML = match.innerHTML.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+        token.text=el.innerHTML;
+    }
+  });
+
   tokens.links = links;
   html = marked.Parser.parse(tokens);
 
